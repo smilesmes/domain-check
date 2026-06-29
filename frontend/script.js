@@ -27,10 +27,36 @@ function formatDate(date) {
 // 简单的域名格式验证（支持中文域名，允许不带 . 的纯字符串）
 function isValidDomainFormat(domain) {
     if (!domain) return false;
-    if (/\s/.test(domain)) return false;
-    if (/^[.-]|[.-]$/.test(domain)) return false;
-    if (/\.\./.test(domain)) return false;
-    return /^[a-zA-Z0-9\u4e00-\u9fff\u3040-\u309f\u30a0-\u30ff\uac00-\ud7af.-]+$/.test(domain);
+    // 检查是否含有空白字符
+    for (var i = 0; i < domain.length; i++) {
+        var c = domain.charAt(i);
+        if (c === ' ' || c === '\t' || c === '\n' || c === '\r') return false;
+    }
+    // 首尾不能是 . 或 -
+    if (domain.charAt(0) === '.' || domain.charAt(0) === '-') return false;
+    if (domain.charAt(domain.length-1) === '.' || domain.charAt(domain.length-1) === '-') return false;
+    // 不允许连续 ..
+    if (domain.indexOf('..') !== -1) return false;
+    // 只允许合法字符：英数字、中文、日文、韩文、点、横杠
+    for (var i2 = 0; i2 < domain.length; i2++) {
+        var ch = domain.charCodeAt(i2);
+        // 英数字 a-z A-Z 0-9
+        if (ch >= 97 && ch <= 122) continue;
+        if (ch >= 65 && ch <= 90) continue;
+        if (ch >= 48 && ch <= 57) continue;
+        // . (46) 和 - (45)
+        if (ch === 46 || ch === 45) continue;
+        // 中文 U+4E00 - U+9FFF
+        if (ch >= 0x4E00 && ch <= 0x9FFF) continue;
+        // 日文平假名 U+3040 - U+309F
+        if (ch >= 0x3040 && ch <= 0x309F) continue;
+        // 日文片假名 U+30A0 - U+30FF
+        if (ch >= 0x30A0 && ch <= 0x30FF) continue;
+        // 韩文 U+AC00 - U+D7AF
+        if (ch >= 0xAC00 && ch <= 0xD7AF) continue;
+        return false;
+    }
+    return true;
 }
 // 判断是一级域名还是二级域名
 function getDomainLevel(domain) {
