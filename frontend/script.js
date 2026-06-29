@@ -26,11 +26,11 @@ function formatDate(date) {
 
 // 简单的域名格式验证（支持中文域名，允许不带 . 的纯字符串）
 function isValidDomainFormat(domain) {
-if (!domain) return false;
-if (/\s/.test(domain)) return false;              // 不允许空白
-if (/^[.-]|[.-]$/.test(domain)) return false;     // 首尾不能是 . 或 -
-if (/\.\./.test(domain)) return false;            // 不允许连续 ..
-return /^[a-zA-Z0-9\u4e00-\u9fff\u3040-\u309f\u30a0-\u30ff\uac00-\ud7af.-]+$/.test(domain);
+    if (!domain) return false;
+    if (/\s/.test(domain)) return false;
+    if (/^[.-]|[.-]$/.test(domain)) return false;
+    if (/\.\./.test(domain)) return false;
+    return /^[a-zA-Z0-9\u4e00-\u9fff\u3040-\u309f\u30a0-\u30ff\uac00-\ud7af.-]+$/.test(domain);
 }
 // 判断是一级域名还是二级域名
 function getDomainLevel(domain) {
