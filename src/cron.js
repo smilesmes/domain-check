@@ -3,7 +3,6 @@
 import { getConfig, sendtgMessage } from './utils';
 import { getDomainsFromKV } from './api/domains';
 
-// 封装获取域名列表的函数
 export async function getDomainsList(env) {
     try {
         return await getDomainsFromKV(env);
@@ -13,11 +12,10 @@ export async function getDomainsList(env) {
     }
 }
 
-// 检查将到期的域名
-export async function checkDomainsScheduled(env) {
+export async function checkDomainsScheduled(env, options = {}) {
     const config = getConfig(env);
     const allDomains = await getDomainsList(env);
-    const expiringDomains = []; // 收集即将到期的域名
+    const expiringDomains = [];
 
     if (allDomains.length === 0) {
         console.log("KV中没有域名数据，跳过定时检查");
@@ -28,16 +26,39 @@ export async function checkDomainsScheduled(env) {
     const todayUTC = Date.UTC(now.getFullYear(), now.getMonth(), now.getDate());
 
     for (const domainInfo of allDomains) {
-        const maxDaysForAlert = config.days; // 使用配置中的 DAYS (默认为 30) 来判断
+        // 分组过滤
+        if (options.group) {
+            const domainGroups = (domainInfo.groups || '').split(',').map(g => g.trim());
+            const targetGroups = options.group.split(',').map(g => g.trim());
+            const hasMatch = targetGroups.some(tg => domainGroups.includes(tg));
+            if (!hasMatch) continue;
+        }
+
+        // 域名过滤
+        if (options.domain && domainInfo.domain !== options.domain) continue;
+
+        // 确定该域名的提醒阈值：
+        // 1. 手动指定 domain/group 时 → 忽略阈值，强制提醒
+        // 2. 域名自身有 alertDays 字段 → 用 alertDays
+        // 3. 否则 → 用全局 DAYS
+        const isManual = !!(options.domain || options.group);
+        let maxDaysForAlert;
+        if (isManual) {
+            maxDaysForAlert = Infinity;
+        } else if (domainInfo.alertDays !== undefined && domainInfo.alertDays !== null && domainInfo.alertDays >= 0) {
+            maxDaysForAlert = domainInfo.alertDays;
+        } else {
+            maxDaysForAlert = config.days;
+        }
+
         const expirationUTC = Date.parse(domainInfo.expirationDate);
         if (isNaN(expirationUTC)) {
             console.warn(`跳过无效日期 (${domainInfo.domain}): ${domainInfo.expirationDate}`);
-            continue; 
+            continue;
         }
         const timeDiff = expirationUTC - todayUTC;
         const daysRemaining = Math.ceil(timeDiff / (1000 * 60 * 60 * 24));
-        
-        // 只对即将到期 (1 < 剩余天数 <= maxDaysForAlert) 的域名发送通知
+
         if (daysRemaining > 0 && daysRemaining <= maxDaysForAlert) {
             const message = `
 <b>🚨 域名到期提醒 🚨</b>
