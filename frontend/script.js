@@ -24,10 +24,10 @@ function formatDate(date) {
     return [year, month, day].join('-');
 }
 
-// 简单的域名格式验证
+// 简单的域名格式验证（支持中文等 Unicode 域名）
 function isValidDomainFormat(domain) {
-    const domainRegex = /^(?!-)(?!.*--)([a-zA-Z0-9-]{1,63}\\.)+[a-zA-Z]{2,}$/;
-    return domainRegex.test(domain.toLowerCase());
+    const domainRegex = /^(?!-)(?!.*--)([\p{L}\p{N}-]{1,63}\.)+[\p{L}]{2,}$/u;
+    return domainRegex.test(domain);
 }
 
 // 判断是一级域名还是二级域名
