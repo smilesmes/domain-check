@@ -762,7 +762,7 @@ function openDomainForm(domainInfo = null) {
         document.getElementById('systemURL').value = domainInfo.systemURL || '';
         document.getElementById('registerAccount').value = domainInfo.registerAccount || '';
         document.getElementById('groups').value = domainInfo.groups || '';
-        document.getElementById('alertDays').value = domainInfo.alertDays ?? '';
+        document.getElementById('alertDays').value = domainInfo.alertDays || '';
         renewalPeriodEl.value = domainInfo.renewalPeriod || '';
         renewalUnitEl.value = domainInfo.renewalUnit || 'year';
         document.getElementById('domain').disabled = false;
@@ -802,7 +802,7 @@ function openDomainFormWithCopy(domainInfo) {
     document.getElementById('systemURL').value = domainInfo.systemURL || '';
     document.getElementById('registerAccount').value = domainInfo.registerAccount || '';
     document.getElementById('groups').value = domainInfo.groups || '';
-    document.getElementById('alertDays').value = domainInfo.alertDays ?? '';
+    document.getElementById('alertDays').value = domainInfo.alertDays || '';
 
     // 续费周期信息
     const renewalPeriodEl = document.getElementById('renewalPeriod');
