@@ -112,8 +112,15 @@ async function handlePostDomain(request, env) {
         // 必填项检查逻辑 (针对所有未被 WHOIS 成功填充的域名)
         // 外层已确保 !expirationDate，内层不再重复检查
         if (!newDomainData.expirationDate) {
-            if (!newDomainData.registrationDate || !newDomainData.system || !newDomainData.systemURL) {
+            // 一级域名：注册商信息也必填；二级域名：只要求注册/到期时间
+            if (isPrimary && (!newDomainData.registrationDate || !newDomainData.system || !newDomainData.systemURL)) {
                 return new Response(JSON.stringify({ error: '信息不完整：注册/到期时间、注册商名称和URL为必填项。' }), { 
+                    status: 422,
+                    headers: { 'Content-Type': 'application/json' }
+                });
+            }
+            if (!isPrimary && !newDomainData.registrationDate) {
+                return new Response(JSON.stringify({ error: '信息不完整：注册时间和到期时间为必填项。' }), { 
                     status: 422,
                     headers: { 'Content-Type': 'application/json' }
                 });
