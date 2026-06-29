@@ -1,4 +1,4 @@
-（import { HTML_CSS } from './style';
+import { HTML_CSS } from './style';
 import { HTML_JS } from './script';
 
 // 导出背景样式函数
