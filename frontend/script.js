@@ -24,13 +24,10 @@ function formatDate(date) {
     return [year, month, day].join('-');
 }
 
-// 简单的域名格式验证（支持中文域名，允许不带 . 的纯字符串）
+// 简单的域名格式验证（支持中文域名）
 function isValidDomainFormat(domain) {
-    if (!domain) return false;
-    if (new RegExp("\\s").test(domain)) return false;
-    if (new RegExp("^[.-]|[.-]$").test(domain)) return false;
-    if (new RegExp("\\.\\.").test(domain)) return false;
-    return new RegExp("^[a-zA-Z0-9\\u4e00-\\u9fff\\u3040-\\u309f\\u30a0-\\u30ff\\uac00-\\ud7af.-]+$").test(domain);
+    const domainRegex = /^(?!-)(?!.*--)([a-zA-Z0-9\u4e00-\u9fff\u3040-\u309f\u30a0-\u30ff\uac00-\ud7af-]{1,63}\.)+[a-zA-Z\u4e00-\u9fff\u3040-\u309f\u30a0-\u30ff\uac00-\ud7af]{2,}$/;
+    return domainRegex.test(domain);
 }
 // 判断是一级域名还是二级域名
 function getDomainLevel(domain) {
