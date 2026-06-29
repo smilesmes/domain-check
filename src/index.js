@@ -74,31 +74,18 @@ export default {
 
         // 手动触发定时检查
         if (pathname === '/cron') {
-            if (request.method !== 'GET' && request.method !== 'POST') {
-                return new Response('Method Not Allowed', { status: 405 });
-            }
-            try {
-                const expiringDomains = await checkDomainsScheduled(env); 
-                const responseBody = {
-                    success: true,
-                    message: expiringDomains.length > 0 
-                             ? `${expiringDomains.length} 个域名即将到期`
-                             : "没有即将到期的域名",
-                    expiringCount: expiringDomains.length,
-                    domains: expiringDomains
-                };
-                return new Response(JSON.stringify(responseBody), {
-                    headers: { 'Content-Type': 'application/json' },
-                });
-            } catch (error) {
-                console.error("手动触发 cron 失败:", error);
-                return new Response(JSON.stringify({
-                    success: false,
-                    error: "cron 任务执行失败",
-                    details: error.message
-                }), { status: 500, headers: { 'Content-Type': 'application/json' } });
-            }
-        }
+    if (request.method !== 'GET' && request.method !== 'POST') {
+        return new Response('Method Not Allowed', { status: 405 });
+    }
+    try {
+        const url = new URL(request.url);
+        const group = url.searchParams.get('group') || '';
+        const domain = url.searchParams.get('domain') || '';
+        const options = {};
+        if (group) options.group = group;
+        if (domain) options.domain = domain;
+        const expiringDomains = await checkDomainsScheduled(env, options);
+        // ... 后面不变
 
         // ----- API 路由（全部需鉴权） -----
         if (pathname.startsWith('/api/')) {
