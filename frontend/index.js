@@ -1,4 +1,4 @@
-import { HTML_CSS } from './style';
+（import { HTML_CSS } from './style';
 import { HTML_JS } from './script';
 
 // 导出背景样式函数
@@ -97,8 +97,10 @@ function generateFormModal() {
 
                 <label for="groups"><i class="fa fa-tags"></i> 分组 (可选)</label>
                 <input type="text" id="groups" placeholder="多个分组可用英文逗号分隔, 例如: 主要, 个人, 待续费">
+
                 <label for="alertDays"><i class="fa fa-bell"></i> 提前提醒天数（可选，留空则用全局）</label>
                 <input type="number" id="alertDays" min="0" max="999" placeholder="例如：7 表示到期前 7 天开始提醒。留空使用全局 DAYS 值">
+
                 <button type="submit"><i class="fa fa-save"></i> 保存</button>
             </form>
         </div>
