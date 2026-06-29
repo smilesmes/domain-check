@@ -26,7 +26,7 @@ export async function checkDomainsScheduled(env, options = {}) {
     const todayUTC = Date.UTC(now.getFullYear(), now.getMonth(), now.getDate());
 
     for (const domainInfo of allDomains) {
-        // 分组过滤
+        // 分组过滤（手动指定 group 时）
         if (options.group) {
             const domainGroups = (domainInfo.groups || '').split(',').map(g => g.trim());
             const targetGroups = options.group.split(',').map(g => g.trim());
@@ -34,13 +34,13 @@ export async function checkDomainsScheduled(env, options = {}) {
             if (!hasMatch) continue;
         }
 
-        // 域名过滤
+        // 域名过滤（手动指定 domain 时）
         if (options.domain && domainInfo.domain !== options.domain) continue;
 
         // 确定该域名的提醒阈值：
-        // 1. 手动指定 domain/group 时 → 忽略阈值，强制提醒
-        // 2. 域名自身有 alertDays 字段 → 用 alertDays
-        // 3. 否则 → 用全局 DAYS
+        // 1. 手动指定 domain/group → 忽略阈值，强制提醒
+        // 2. 域名自身有 alertDays → 用它
+        // 3. 否则 → 全局 DAYS
         const isManual = !!(options.domain || options.group);
         let maxDaysForAlert;
         if (isManual) {
@@ -61,13 +61,21 @@ export async function checkDomainsScheduled(env, options = {}) {
 
         if (daysRemaining > 0 && daysRemaining <= maxDaysForAlert) {
             const message = `
+
 <b>🚨 域名到期提醒 🚨</b>
+
 ====================
-🌐 域名: <code>${domainInfo.domain}</code>
+🌐 域名: 
+<code>${domainInfo.domain}</code>
+
 ♻️ 将在 <b>${daysRemaining}天</b> 后过期！
 📅 过期日期: ${domainInfo.expirationDate}
-🔗 注册商: <a href="${domainInfo.systemURL}">${domainInfo.system}</a>
-👤 注册账号: <code>${domainInfo.registerAccount || 'N/A'}</code>
+🔗 注册商: 
+<a href="${domainInfo.systemURL}">${domainInfo.system}</a>
+
+👤 注册账号: 
+<code>${domainInfo.registerAccount || 'N/A'}</code>
+
 --------------------------`;
 
             await sendtgMessage(message, config.tgid, config.tgtoken);
