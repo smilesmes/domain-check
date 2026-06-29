@@ -819,14 +819,15 @@ function openDomainFormWithCopy(domainInfo) {
 function updateFormRequiredStatus(domainValue) {
     const domainValueTrimmed = domainValue.trim();
     const isPrimary = isPrimaryDomain(domainValueTrimmed);
-    const requiredFields = ['registrationDate', 'expirationDate', 'system', 'systemURL'];
+    const allFields = ['registrationDate', 'expirationDate', 'system', 'systemURL'];
+    const secondaryRequired = ['registrationDate', 'expirationDate'];
     const warningEl = document.getElementById('domainFillWarning');
     const originalDomain = document.getElementById('editOriginalDomain').value;
     const domainExists = allDomains.some(d => d.domain === domainValueTrimmed && d.domain !== originalDomain);
 
     if (!domainValueTrimmed) {
         if (warningEl) { warningEl.style.display = 'none'; }
-        requiredFields.forEach(id => {
+        allFields.forEach(id => {
             const el = document.getElementById(id);
             if (el) { el.required = true; el.placeholder = '二级域名必填'; }
         });
@@ -839,7 +840,7 @@ function updateFormRequiredStatus(domainValue) {
             warningEl.style.color = '#e74c3c'; 
             warningEl.style.display = 'block';
         }
-        requiredFields.forEach(id => {
+        allFields.forEach(id => {
             const el = document.getElementById(id);
             if (el) { el.required = false; el.placeholder = '已存在，无需填写'; }
         });
@@ -852,22 +853,29 @@ function updateFormRequiredStatus(domainValue) {
             warningEl.textContent = '检测为一级域名，可不填写日期和注册商，将使用 WHOIS API 自动获取';
             warningEl.style.color = '#f39c12';
         }
-        requiredFields.forEach(id => {
+        allFields.forEach(id => {
             const el = document.getElementById(id);
             if (el) { el.required = false; el.placeholder = '一级域名可留空'; }
         });
     } else {
         if (warningEl) {
-            warningEl.textContent = '检测为二级域名，日期和注册商为必填项, 无法使用 WHOIS API 自动获取';
-            warningEl.style.color = '#e74c3c';
+            warningEl.textContent = '检测为二级域名，注册时间和到期时间为必填项，注册商信息可选';
+            warningEl.style.color = '#f39c12';
         }
-        requiredFields.forEach(id => {
+        allFields.forEach(id => {
             const el = document.getElementById(id);
-            if (el) { el.required = true; el.placeholder = '二级域名必填'; }
+            if (el) {
+                if (secondaryRequired.includes(id)) {
+                    el.required = true;
+                    el.placeholder = '二级域名必填';
+                } else {
+                    el.required = false;
+                    el.placeholder = '可选';
+                }
+            }
         });
     }
 }
-
 // 05-filters.js — 分组、搜索过滤、状态筛选
 
 function applyFiltersAndSearch() {
